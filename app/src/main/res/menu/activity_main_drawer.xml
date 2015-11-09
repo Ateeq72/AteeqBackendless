@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item android:id="@+id/fmain"
+        android:title="Home" />
+    <item android:title="Dishes">
+        <menu>
+
+            <item android:id="@+id/briyani"
+                android:title="Briyani" />
+            <item android:id="@+id/noodles"
+                android:title="Noodles" />
+        </menu>
+    </item>
+
+    <item android:title="Accounts">
+        <menu>
+            <item android:id="@+id/login_register"
+                android:title="Login" />
+            <item android:id="@+id/visitus"
+                android:title="Visit Us!" />
+        </menu>
+    </item>
+
+</menu>
