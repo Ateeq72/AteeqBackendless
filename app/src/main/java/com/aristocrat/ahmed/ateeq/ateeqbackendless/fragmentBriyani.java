@@ -135,9 +135,8 @@ public class fragmentBriyani extends Fragment implements fragmentQuantity.OnFrag
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
                 String selected= (String) adapter.getItem(position);
-                Toast.makeText(getActivity(),selected + " was clicked!",Toast.LENGTH_LONG).show();
-                storeStrings a = new storeStrings();
-                a.Dish(selected);
+                Toast.makeText(getActivity(),selected + " was selected",Toast.LENGTH_LONG).show();
+                MainActivity.dish  = selected;
                 Fragment quantity = new fragmentQuantity();
                 FragmentTransaction ft = getFragmentManager().beginTransaction();
                 ft.replace(R.id.mainFrame,quantity);

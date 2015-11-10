@@ -126,7 +126,10 @@ public class fragmentNoodles extends Fragment implements fragmentOrder.OnFragmen
         ls.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Toast.makeText(getActivity(),"Something selected",Toast.LENGTH_LONG).show();
+                String selected= (String) parent.getItemAtPosition(position);
+                Toast.makeText(getActivity(),selected + " was selected",Toast.LENGTH_LONG).show();
+                MainActivity.dish  = selected;
+                Toast.makeText(getActivity(),selected +" was selected",Toast.LENGTH_LONG).show();
                 Fragment quantity = new fragmentQuantity();
                 FragmentTransaction ft = getFragmentManager().beginTransaction();
                 ft.replace(R.id.mainFrame,quantity);

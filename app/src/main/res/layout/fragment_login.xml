@@ -73,4 +73,21 @@
         android:layout_centerHorizontal="true"
         android:onClick="loginbtnmethod"
         android:nestedScrollingEnabled="false" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:text="Or"
+        android:id="@+id/textView16"
+        android:layout_below="@+id/loginbutton"
+        android:layout_centerHorizontal="true" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Register"
+        android:id="@+id/loginRegisterBtn"
+        android:layout_below="@+id/textView16"
+        android:layout_centerHorizontal="true" />
 </RelativeLayout>

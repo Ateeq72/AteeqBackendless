@@ -1,6 +1,7 @@
 package com.aristocrat.ahmed.ateeq.ateeqbackendless;
 
 import android.app.Activity;
+import android.app.FragmentTransaction;
 import android.net.Uri;
 import android.os.Bundle;
 import android.app.Fragment;
@@ -8,7 +9,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import weborb.client.ant.wdm.Table;
 
 
 /**
@@ -109,16 +114,30 @@ public class fragmentOrder extends Fragment {
     }
     public void onActivityCreated(Bundle bs)
     {
-        storeStrings a = new storeStrings();
-        String gdish = a.getDish();
-        String gquantity = a.getQuantity();
         super.onActivityCreated(bs);
+
         TextView dishse = (TextView) getView().findViewById(R.id.dishtextView);
         TextView quantityse = (TextView) getView().findViewById(R.id.quantity_textView);
-        dishse.setText(gdish);
-        quantityse.setText(gquantity);
+        dishse.setText(MainActivity.dish);
+        quantityse.setText(MainActivity.quantity);
 
-        Button finalizabtn = (Button) getView().findViewById(R.id.finalize_button);
+        final Button finalizabtn = (Button) getView().findViewById(R.id.finalize_button);
+        finalizabtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                EditText pnofield = (EditText) getView().findViewById(R.id.fphoneEdittext);
+                String pno = pnofield.getText().toString();
+
+                Toast.makeText(getActivity(), MainActivity.cuname + MainActivity.cuemailid + MainActivity.dish + MainActivity.quantity + pno, Toast.LENGTH_LONG).show();
+
+
+                MainActivity.dish = "";
+                MainActivity.quantity = "";
+
+
+            }
+        });
 
 
 

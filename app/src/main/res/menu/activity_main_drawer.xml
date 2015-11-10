@@ -16,7 +16,7 @@
     <item android:title="Accounts">
         <menu>
             <item android:id="@+id/login_register"
-                android:title="Login" />
+                 android:title="Login"/>
             <item android:id="@+id/visitus"
                 android:title="Visit Us!" />
         </menu>

@@ -5,6 +5,8 @@ import android.app.FragmentTransaction;
 import android.net.Uri;
 import android.os.Bundle;
 import android.app.Fragment;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.widget.DrawerLayout;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -127,8 +129,7 @@ public class fragmentQuantity extends Fragment implements fragmentOrder.OnFragme
         sp.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
                 String item = parent.getItemAtPosition(pos).toString();
-                storeStrings a = new storeStrings();
-                a.Quantity(item);
+                MainActivity.quantity=item;
 
             }
             public void onNothingSelected(AdapterView<?> parent) {
@@ -147,6 +148,12 @@ public class fragmentQuantity extends Fragment implements fragmentOrder.OnFragme
             }
         });
 
+    }
+
+    public void onBackPressed() {
+       FragmentTransaction ft =getFragmentManager().beginTransaction();
+        ft.replace(R.id.mainFrame,getParentFragment());
+        ft.commit();
     }
 
 }

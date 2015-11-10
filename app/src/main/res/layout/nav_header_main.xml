@@ -9,15 +9,19 @@
     android:theme="@style/ThemeOverlay.AppCompat.Dark" android:orientation="vertical"
     android:gravity="bottom">
 
-    <ImageView android:layout_width="wrap_content" android:layout_height="wrap_content"
+   <FrameLayout
+       android:layout_width="match_parent"
+       android:layout_height="match_parent"
+       android:id="@+id/nav_view"></FrameLayout> <!--<ImageView android:layout_width="wrap_content" android:layout_height="wrap_content"
         android:paddingTop="@dimen/nav_header_vertical_spacing"
         android:src="@android:drawable/sym_def_app_icon" android:id="@+id/imageView" />
 
     <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
-        android:paddingTop="@dimen/nav_header_vertical_spacing" android:text="Android Studio"
-        android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
+        android:paddingTop="@dimen/nav_header_vertical_spacing" android:text="Guest"
+        android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+        android:id="@+id/nav_name" />
 
     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-        android:text="android.studio@android.com" android:id="@+id/textView" />
+        android:text="guest@domian.com" android:id="@+id/nav_id" />-->
 
 </LinearLayout>

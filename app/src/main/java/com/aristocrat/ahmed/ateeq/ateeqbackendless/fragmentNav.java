@@ -7,21 +7,18 @@ import android.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
-
-import com.backendless.Backendless;
-import com.backendless.BackendlessUser;
+import android.widget.TextView;
 
 
 /**
  * A simple {@link Fragment} subclass.
  * Activities that contain this fragment must implement the
- * {@link fragmentMain.OnFragmentInteractionListener} interface
+ * {@link fragmentNav.OnFragmentInteractionListener} interface
  * to handle interaction events.
- * Use the {@link fragmentMain#newInstance} factory method to
+ * Use the {@link fragmentNav#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class fragmentMain extends Fragment {
+public class fragmentNav extends Fragment {
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -39,11 +36,11 @@ public class fragmentMain extends Fragment {
      *
      * @param param1 Parameter 1.
      * @param param2 Parameter 2.
-     * @return A new instance of fragment fragmentMain.
+     * @return A new instance of fragment fragmentNav.
      */
     // TODO: Rename and change types and number of parameters
-    public static fragmentMain newInstance(String param1, String param2) {
-        fragmentMain fragment = new fragmentMain();
+    public static fragmentNav newInstance(String param1, String param2) {
+        fragmentNav fragment = new fragmentNav();
         Bundle args = new Bundle();
         args.putString(ARG_PARAM1, param1);
         args.putString(ARG_PARAM2, param2);
@@ -51,7 +48,7 @@ public class fragmentMain extends Fragment {
         return fragment;
     }
 
-    public fragmentMain() {
+    public fragmentNav() {
         // Required empty public constructor
     }
 
@@ -68,7 +65,7 @@ public class fragmentMain extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_main, container, false);
+        return inflater.inflate(R.layout.fragment_nav, container, false);
     }
 
     // TODO: Rename method, update argument and hook method into UI event
@@ -110,16 +107,30 @@ public class fragmentMain extends Fragment {
         public void onFragmentInteraction(Uri uri);
     }
 
+    String name;
+    String email;
+
+    public void setnavdata(String email,String name)
+    {
+        String dname = "Guest";
+        String demail = "guest@domain.com";
+        if (!email.equals("") || !name.equals("")) {
+            this.name = name;
+            this.email = email;
+        }
+        else{
+            this.name = dname;
+            this.email =demail;
+        }
+    }
     public void onActivityCreated(Bundle bs)
     {
         super.onActivityCreated(bs);
-        BackendlessUser user = Backendless.UserService.CurrentUser();
-        if(user != null)
-        {
-            String cuemail = user.getEmail();
-            Toast.makeText(getActivity(),"Welcome "+cuemail,Toast.LENGTH_LONG);
-        }
 
+        TextView nameview = (TextView) getView().findViewById(R.id.nav_name);
+        TextView emailview = (TextView) getView().findViewById(R.id.nav_id);
+        nameview.setText(name);
+        emailview.setText(email);
     }
 
 }

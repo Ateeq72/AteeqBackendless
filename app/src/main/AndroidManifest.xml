@@ -44,6 +44,10 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.aristocrat.ahmed.ateeq.ateeqbackendless.MainActivity" />
         </activity>
+        <service android:name="com.backendless.AndroidService" />
     </application>
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
 
 </manifest>

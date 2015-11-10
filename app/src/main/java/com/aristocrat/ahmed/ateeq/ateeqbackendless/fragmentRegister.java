@@ -5,14 +5,12 @@ import android.app.AlertDialog;
 import android.app.FragmentTransaction;
 import android.content.DialogInterface;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -25,16 +23,17 @@ import com.backendless.exceptions.BackendlessFault;
 /**
  * A simple {@link Fragment} subclass.
  * Activities that contain this fragment must implement the
- * {@link fragmentLogin.OnFragmentInteractionListener} interface
+ * {@link fragmentRegister.OnFragmentInteractionListener} interface
  * to handle interaction events.
- * Use the {@link fragmentLogin#newInstance} factory method to
+ * Use the {@link fragmentRegister#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class fragmentLogin extends Fragment {
+public class fragmentRegister extends Fragment {
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
+
 
     // TODO: Rename and change types of parameters
     private String mParam1;
@@ -48,11 +47,11 @@ public class fragmentLogin extends Fragment {
      *
      * @param param1 Parameter 1.
      * @param param2 Parameter 2.
-     * @return A new instance of fragment fragmentLogin.
+     * @return A new instance of fragment fragmentRegister.
      */
     // TODO: Rename and change types and number of parameters
-    public static fragmentLogin newInstance(String param1, String param2) {
-        fragmentLogin fragment = new fragmentLogin();
+    public static fragmentRegister newInstance(String param1, String param2) {
+        fragmentRegister fragment = new fragmentRegister();
         Bundle args = new Bundle();
         args.putString(ARG_PARAM1, param1);
         args.putString(ARG_PARAM2, param2);
@@ -60,7 +59,7 @@ public class fragmentLogin extends Fragment {
         return fragment;
     }
 
-    public fragmentLogin() {
+    public fragmentRegister() {
         // Required empty public constructor
     }
 
@@ -73,14 +72,11 @@ public class fragmentLogin extends Fragment {
         }
     }
 
-    View view;
-    Button login;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-
-        return inflater.inflate(R.layout.fragment_login, container, false);
+        return inflater.inflate(R.layout.fragment_register, container, false);
     }
 
     // TODO: Rename method, update argument and hook method into UI event
@@ -107,8 +103,6 @@ public class fragmentLogin extends Fragment {
         mListener = null;
     }
 
-
-
     /**
      * This interface must be implemented by activities that contain this
      * fragment to allow an interaction in this fragment to be communicated
@@ -127,68 +121,80 @@ public class fragmentLogin extends Fragment {
     public void onActivityCreated(Bundle bs)
     {
         super.onActivityCreated(bs);
-
-        Button loginbtn = (Button) getView().findViewById(R.id.loginbutton);
-        loginbtn.setOnClickListener(new View.OnClickListener() {
+        Button regbtn =(Button) getView().findViewById(R.id.registerbutton);
+        regbtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                EditText getmailfield = (EditText) getView().findViewById(R.id.getemail);
-                EditText getpasswordfield = (EditText) getView().findViewById(R.id.getpassword);
-                CheckBox staycheck = (CheckBox) getView().findViewById(R.id.stay);
-                final boolean stays = staycheck.isChecked();
-                final String email = getmailfield.getText().toString();
-                final String pass = getpasswordfield.getText().toString();
-                if (email == null || email.equals("")) {
-                    Toast.makeText(getActivity(), "Email Cant be Empty", Toast.LENGTH_LONG).show();
+                final EditText getmailfield = (EditText) getView().findViewById(R.id.getEmailRegister);
+                final EditText getpassfield = (EditText) getView().findViewById(R.id.getPassRegister);
+                final EditText getNamefield = (EditText) getView().findViewById(R.id.getNameReg);
+                final EditText getpassconfield = (EditText) getView().findViewById(R.id.getConfPassReg);
+
+                String name = getNamefield.getText().toString();
+                String email = getmailfield.getText().toString();
+                String pass = getpassfield.getText().toString();
+                String cpass = getpassconfield.getText().toString();
+                if ( name.equals("") )
+                {
+                    Toast.makeText(getActivity(),"Name Can't be Empty",Toast.LENGTH_SHORT).show();
                     return;
                 }
-                if (pass == null || pass.equals("")) {
-                    Toast.makeText(getActivity(), "Password Cant be Empty", Toast.LENGTH_LONG).show();
+                if ( email.equals(""))
+                {
+                    Toast.makeText(getActivity(),"Email Can't be Empty",Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                if (pass.equals(""))
+                {
+                    Toast.makeText(getActivity(),"Password Can't be Empty",Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                if (!pass.equals(cpass))
+                {
+                    Toast.makeText(getActivity(),"Password dont match!",Toast.LENGTH_SHORT).show();
                     return;
                 }
 
-                Backendless.UserService.login(email, pass, new AsyncCallback<BackendlessUser>() {
+                BackendlessUser user = new BackendlessUser();
+                user.setPassword( pass );
+                user.setEmail(email);
+                user.setProperty("name", name);
+                Backendless.UserService.register(user, new AsyncCallback<BackendlessUser>() {
                     @Override
                     public void handleResponse(BackendlessUser response) {
-                        Fragment main = new fragmentMain();
-                        FragmentTransaction ft = getFragmentManager().beginTransaction();
-                        ft.replace(R.id.mainFrame, main);
-                        ft.commit();
+                        Toast.makeText(getActivity(),"Loading..",Toast.LENGTH_LONG).show();
+                        AlertDialog.Builder alert = new AlertDialog.Builder(getActivity());
+                        alert.setTitle("Registration");
+                        alert.setMessage("Registration Succesfull");
+                        alert.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                Fragment main = new fragmentMain();
+                                FragmentTransaction ft = getFragmentManager().beginTransaction();
+                                ft.replace(R.id.mainFrame, main);
+                                ft.commit();
+                                dialog.dismiss();
+                            }
+                        });
 
                     }
 
                     @Override
                     public void handleFault(BackendlessFault fault) {
                         AlertDialog.Builder alert = new AlertDialog.Builder(getActivity());
-                        alert.setTitle("Login Failed");
-                        alert.setMessage("Error : " + fault);
+                        alert.setTitle("Registration");
+                        alert.setMessage("Registration failed \nReason :" + fault);
                         alert.setPositiveButton("OK", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 dialog.dismiss();
                             }
                         });
-                        alert.show();
 
                     }
-                }, stays);
-
+                });
             }
         });
-
-        Button regbtn = (Button) getView().findViewById(R.id.loginRegisterBtn);
-        regbtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Fragment register = new fragmentRegister();
-                FragmentTransaction ft = getFragmentManager().beginTransaction();
-                ft.replace(R.id.mainFrame, register);
-                ft.commit();
-
-            }
-        });
-
-
 
     }
 

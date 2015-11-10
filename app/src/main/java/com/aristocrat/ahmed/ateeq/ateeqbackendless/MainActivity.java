@@ -18,6 +18,9 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import com.backendless.Backendless;
+import com.backendless.BackendlessUser;
+
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,
                    fragmentMain.OnFragmentInteractionListener,
@@ -25,8 +28,14 @@ public class MainActivity extends AppCompatActivity
                    fragmentBriyani.OnFragmentInteractionListener,
                    fragmentNoodles.OnFragmentInteractionListener,
                    fragmentQuantity.OnFragmentInteractionListener,
-                   fragmentOrder.OnFragmentInteractionListener
+                   fragmentOrder.OnFragmentInteractionListener,
+                   fragmentNav.OnFragmentInteractionListener,
+                   fragmentRegister.OnFragmentInteractionListener
                     {
+                        static String dish;
+                        static String quantity;
+                        static String cuname;
+                        static String cuemailid;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,6 +43,22 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        Backendless.initApp(this, backendlessSettings.id, backendlessSettings.key, backendlessSettings.ver);
+        BackendlessUser user = Backendless.UserService.CurrentUser();
+        if (user != null)
+        {
+            String name = user.getProperty("name").toString();
+            String email = user.getEmail();
+            fragmentNav a = new fragmentNav();
+            a.setnavdata(email,name);
+        }
+
+
+        Fragment navview = new fragmentNav();
+        FragmentTransaction ft = getFragmentManager().beginTransaction();
+        ft.replace(R.id.nav_view,navview);
+        ft.commit();
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -45,17 +70,20 @@ public class MainActivity extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
 
         Fragment main =  new fragmentMain();
-        FragmentTransaction ft = getFragmentManager().beginTransaction();
-        ft.replace(R.id.mainFrame,main);
-        ft.commit();
+        FragmentTransaction ft1 = getFragmentManager().beginTransaction();
+        ft1.replace(R.id.mainFrame,main);
+        ft1.commit();
     }
 
     @Override
     public void onBackPressed() {
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
-        } else {
+        }
+
+        else {
             super.onBackPressed();
         }
     }
