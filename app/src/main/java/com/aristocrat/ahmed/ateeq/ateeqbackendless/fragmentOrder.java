@@ -1,10 +1,15 @@
 package com.aristocrat.ahmed.ateeq.ateeqbackendless;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.FragmentTransaction;
+import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,7 +18,20 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import weborb.client.ant.wdm.Table;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.message.BasicNameValuePair;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
 
 
 /**
@@ -29,7 +47,7 @@ public class fragmentOrder extends Fragment {
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
-
+    private ProgressDialog pDialog;
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
@@ -112,6 +130,109 @@ public class fragmentOrder extends Fragment {
         // TODO: Update argument type and name
         public void onFragmentInteraction(Uri uri);
     }
+
+    private class storeorderdb extends AsyncTask<String, String, String>
+    {
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            pDialog = new ProgressDialog(getActivity());
+            pDialog.setMessage("Placing Order!. Please Wait.");
+            pDialog.setIndeterminate(false);
+            pDialog.setCancelable(false);
+            pDialog.show();
+        }
+
+
+        @Override
+        protected String doInBackground(String... params) {
+
+            int code;
+            try {
+                //Your implementation goes here
+                InputStream is = null;
+                String line=null;
+                String result=null;
+
+
+
+                ArrayList<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
+
+                nameValuePairs.add(new BasicNameValuePair("user",MainActivity.cuname));
+                nameValuePairs.add(new BasicNameValuePair("dish",MainActivity.dish));
+                nameValuePairs.add(new BasicNameValuePair("quantity",MainActivity.quantity));
+                nameValuePairs.add(new BasicNameValuePair("pno",MainActivity.pno));
+
+                try
+                {
+                    HttpClient httpclient = new DefaultHttpClient();
+                    HttpPost httppost = new HttpPost("http://192.168.1.10/insertdata.php");
+                    httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
+                    HttpResponse response = httpclient.execute(httppost);
+                    HttpEntity entity = response.getEntity();
+                    is = entity.getContent();
+                    Log.e("pass 1", "connection success ");
+                }
+                catch(Exception e)
+                {
+                    Log.e("Fail 1", e.toString());
+                    //Toast.makeText(getActivity(), "Invalid IP Address",
+                      //      Toast.LENGTH_LONG).show();
+                }
+
+                try
+                {
+                    BufferedReader reader = new BufferedReader
+                            (new InputStreamReader(is,"iso-8859-1"),8);
+                    StringBuilder sb = new StringBuilder();
+                    while ((line = reader.readLine()) != null)
+                    {
+                        sb.append(line + "\n");
+                    }
+                    is.close();
+                    result = sb.toString();
+                    Log.e("pass 2", "connection success ");
+                }
+                catch(Exception e)
+                {
+                    Log.e("Fail 2", e.toString());
+                }
+
+                try
+                {
+                    JSONObject json_data = new JSONObject(result);
+                    code=(json_data.getInt("code"));
+
+                    if(code==1)
+                    {
+                        //Toast.makeText(getActivity(), "Order placed Successfully",
+                          //      Toast.LENGTH_SHORT).show();
+                    }
+                    else
+                    {
+                      //  Toast.makeText(getActivity(), "Sorry, Try Again",
+                        //        Toast.LENGTH_LONG).show();
+                    }
+                }
+                catch(Exception e)
+                {
+                    Log.e("Fail 3", e.toString());
+                }
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+
+            return null;
+        }
+
+        protected void onPostExecute(String file_url) {
+            pDialog.dismiss();
+
+        }
+    }
+
+
     public void onActivityCreated(Bundle bs)
     {
         super.onActivityCreated(bs);
@@ -128,12 +249,30 @@ public class fragmentOrder extends Fragment {
 
                 EditText pnofield = (EditText) getView().findViewById(R.id.fphoneEdittext);
                 String pno = pnofield.getText().toString();
+                MainActivity.pno = pno;
 
-                Toast.makeText(getActivity(), MainActivity.cuname + MainActivity.cuemailid + MainActivity.dish + MainActivity.quantity + pno, Toast.LENGTH_LONG).show();
+                Toast.makeText(getActivity(), MainActivity.cuname+"  " + MainActivity.cuemailid +" "+ MainActivity.dish +" " + MainActivity.quantity +" "+ pno, Toast.LENGTH_LONG).show();
+                new storeorderdb().execute();
+                if(MainActivity.cuname.equals("") || MainActivity.cuemailid.equals(""))
+                {
+                    AlertDialog.Builder alert = new AlertDialog.Builder(getActivity());
+                    alert.setTitle("Order Error");
+                    alert.setMessage("Please Login to order!");
+                    alert.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                        }
+                    });
+                    return;
+                }
 
 
-                MainActivity.dish = "";
-                MainActivity.quantity = "";
+
+
+
+
+
 
 
             }

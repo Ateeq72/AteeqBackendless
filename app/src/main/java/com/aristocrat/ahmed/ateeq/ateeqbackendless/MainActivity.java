@@ -1,7 +1,9 @@
 package com.aristocrat.ahmed.ateeq.ateeqbackendless;
 
+import android.app.AlertDialog;
 import android.app.Fragment;
 import android.app.FragmentTransaction;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -18,8 +20,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
-import com.backendless.Backendless;
-import com.backendless.BackendlessUser;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,
@@ -34,8 +34,10 @@ public class MainActivity extends AppCompatActivity
                     {
                         static String dish;
                         static String quantity;
-                        static String cuname;
-                        static String cuemailid;
+                        static String cuname = "guest";
+                        static String cuemailid = "guest@domain.com";
+                        static boolean loggedin;
+                        static String pno;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,20 +46,22 @@ public class MainActivity extends AppCompatActivity
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        Backendless.initApp(this, backendlessSettings.id, backendlessSettings.key, backendlessSettings.ver);
-        BackendlessUser user = Backendless.UserService.CurrentUser();
-        if (user != null)
+
+        if (loggedin)
         {
-            String name = user.getProperty("name").toString();
-            String email = user.getEmail();
+
             fragmentNav a = new fragmentNav();
-            a.setnavdata(email,name);
+            a.setnavdata(cuemailid,cuname);
+            final NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+            navigationView.getMenu().setGroupVisible(R.id.logingroup,false);
+            navigationView.getMenu().setGroupVisible(R.id.logoutgroup,true);
+
         }
 
 
         Fragment navview = new fragmentNav();
         FragmentTransaction ft = getFragmentManager().beginTransaction();
-        ft.replace(R.id.nav_view,navview);
+        ft.replace(R.id.nav_view, navview);
         ft.commit();
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -66,7 +70,11 @@ public class MainActivity extends AppCompatActivity
         drawer.setDrawerListener(toggle);
         toggle.syncState();
 
+
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+
+        navigationView.getMenu().setGroupVisible(R.id.logingroup, true);
+        navigationView.getMenu().setGroupVisible(R.id.logoutgroup, false);
         navigationView.setNavigationItemSelectedListener(this);
 
         Fragment main =  new fragmentMain();
@@ -116,12 +124,36 @@ public class MainActivity extends AppCompatActivity
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
-        if (id == R.id.login_register) {
+        if (id == R.id.login) {
             Fragment login = new fragmentLogin();
             FragmentTransaction ft = getFragmentManager().beginTransaction();
             ft.replace(R.id.mainFrame,login);
             ft.commit();
-        } else if (id == R.id.briyani) {
+
+        }
+        else if (id == R.id.logout) {
+            loggedin = false;
+            MainActivity.cuname="";
+            MainActivity.cuemailid="";
+
+            AlertDialog.Builder alert = new AlertDialog.Builder(MainActivity.this);
+            alert.setTitle("Logout");
+            alert.setMessage("Logout Success!");
+            alert.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                      dialog.dismiss();
+                }
+            });
+
+            Fragment main = new fragmentLogin();
+            FragmentTransaction ft = getFragmentManager().beginTransaction();
+            ft.replace(R.id.mainFrame,main);
+            ft.commit();
+
+        }
+
+        else if (id == R.id.briyani) {
             Fragment briyani = new fragmentBriyani();
             FragmentTransaction ft = getFragmentManager().beginTransaction();
             ft.replace(R.id.mainFrame,briyani);
@@ -133,10 +165,12 @@ public class MainActivity extends AppCompatActivity
             ft.replace(R.id.mainFrame,noodles);
             ft.commit();
 
-        } else if (id == R.id.visitus) {
-            startActivity(new Intent(MainActivity.this,activityMaps.class));
+        } else if (id == R.id.visitusga || id == R.id.visitusgb) {
+            startActivity(new Intent(MainActivity.this, activityMaps.class));
 
-        } else if (id == R.id.fmain) {
+        }
+
+        else if (id == R.id.fmain) {
             Fragment main =  new fragmentMain();
             FragmentTransaction ft = getFragmentManager().beginTransaction();
             ft.replace(R.id.mainFrame,main);

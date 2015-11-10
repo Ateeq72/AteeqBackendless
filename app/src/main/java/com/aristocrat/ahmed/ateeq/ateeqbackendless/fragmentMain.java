@@ -9,8 +9,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
-import com.backendless.Backendless;
-import com.backendless.BackendlessUser;
 
 
 /**
@@ -113,12 +111,7 @@ public class fragmentMain extends Fragment {
     public void onActivityCreated(Bundle bs)
     {
         super.onActivityCreated(bs);
-        BackendlessUser user = Backendless.UserService.CurrentUser();
-        if(user != null)
-        {
-            String cuemail = user.getEmail();
-            Toast.makeText(getActivity(),"Welcome "+cuemail,Toast.LENGTH_LONG);
-        }
+
 
     }
 

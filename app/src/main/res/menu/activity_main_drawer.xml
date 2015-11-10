@@ -13,13 +13,30 @@
         </menu>
     </item>
 
-    <item android:title="Accounts">
+
+    <group android:id="@+id/logingroup"
+         android:visible="true">
+        <item android:title="Accounts">
         <menu>
-            <item android:id="@+id/login_register"
-                 android:title="Login"/>
-            <item android:id="@+id/visitus"
+            <item android:id="@+id/login"
+                android:title="Login"/>
+            <item android:id="@+id/visitusga"
                 android:title="Visit Us!" />
         </menu>
-    </item>
+        </item>
+    </group>
+    <group android:id="@+id/logoutgroup"
+        android:visible="false">
+        <item android:title="Accounts">
+            <menu>
+                <item android:id="@+id/logout"
+                    android:title="Login"/>
+                <item android:id="@+id/visitusgb"
+                    android:title="Visit Us!" />
+            </menu>
+        </item>
+    </group>
+
+
 
 </menu>

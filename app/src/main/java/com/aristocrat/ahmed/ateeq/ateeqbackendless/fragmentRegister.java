@@ -7,6 +7,7 @@ import android.content.DialogInterface;
 import android.net.Uri;
 import android.os.Bundle;
 import android.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,10 +15,20 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.backendless.Backendless;
-import com.backendless.BackendlessUser;
-import com.backendless.async.callback.AsyncCallback;
-import com.backendless.exceptions.BackendlessFault;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.message.BasicNameValuePair;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
 
 
 /**
@@ -121,7 +132,7 @@ public class fragmentRegister extends Fragment {
     public void onActivityCreated(Bundle bs)
     {
         super.onActivityCreated(bs);
-        Button regbtn =(Button) getView().findViewById(R.id.registerbutton);
+        Button regbtn =(Button) getActivity().findViewById(R.id.registerbutton);
         regbtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -130,9 +141,10 @@ public class fragmentRegister extends Fragment {
                 final EditText getNamefield = (EditText) getView().findViewById(R.id.getNameReg);
                 final EditText getpassconfield = (EditText) getView().findViewById(R.id.getConfPassReg);
 
-                String name = getNamefield.getText().toString();
-                String email = getmailfield.getText().toString();
-                String pass = getpassfield.getText().toString();
+                final String name = getNamefield.getText().toString();
+
+                final String email = getmailfield.getText().toString();
+                final String pass = getpassfield.getText().toString();
                 String cpass = getpassconfield.getText().toString();
                 if ( name.equals("") )
                 {
@@ -155,6 +167,102 @@ public class fragmentRegister extends Fragment {
                     return;
                 }
 
+                new Thread(new Runnable(){
+                    @Override
+                    public void run() {
+                        try {
+                            //Your implementation goes here
+                            InputStream is = null;
+                            String line=null;
+                            String result=null;
+                            int code;
+
+
+                            ArrayList<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
+
+                            nameValuePairs.add(new BasicNameValuePair("name",name));
+                            nameValuePairs.add(new BasicNameValuePair("email",email));
+                            nameValuePairs.add(new BasicNameValuePair("password",pass));
+
+                            try
+                            {
+                                HttpClient httpclient = new DefaultHttpClient();
+                                HttpPost httppost = new HttpPost("http://192.168.1.10/insertusers.php");
+                                httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
+                                HttpResponse response = httpclient.execute(httppost);
+                                HttpEntity entity = response.getEntity();
+                                is = entity.getContent();
+                                Log.e("pass 1", "connection success ");
+                            }
+                            catch(Exception e)
+                            {
+                                Log.e("Fail 1", e.toString());
+//            Toast.makeText(this, "Invalid IP Address",
+                                //Toast.LENGTH_LONG).show();
+                            }
+
+                            try
+                            {
+                                BufferedReader reader = new BufferedReader
+                                        (new InputStreamReader(is,"iso-8859-1"),8);
+                                StringBuilder sb = new StringBuilder();
+                                while ((line = reader.readLine()) != null)
+                                {
+                                    sb.append(line + "\n");
+                                }
+                                is.close();
+                                result = sb.toString();
+                                Log.e("pass 2", "connection success ");
+                            }
+                            catch(Exception e)
+                            {
+                                Log.e("Fail 2", e.toString());
+                            }
+
+                            try
+                            {
+                                JSONObject json_data = new JSONObject(result);
+                                code=(json_data.getInt("code"));
+
+                                if(code==1)
+                                {
+                                    Toast.makeText(getActivity(), "Registered Successfully",
+                                            Toast.LENGTH_SHORT).show();
+                                    AlertDialog.Builder alert = new AlertDialog.Builder(getActivity());
+                                    alert.setTitle("Registration");
+                                    alert.setMessage("Registration Succesfull");
+                                    alert.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialog, int which) {
+                                            Fragment main = new fragmentMain();
+                                            FragmentTransaction ft = getFragmentManager().beginTransaction();
+                                            ft.replace(R.id.mainFrame, main);
+                                            ft.commit();
+                                            dialog.dismiss();
+                                        }
+                                    });
+                                }
+                                else
+                                {
+                                    Toast.makeText(getActivity(), "Sorry, Try Again",
+                                            Toast.LENGTH_LONG).show();
+                                }
+                            }
+                            catch(Exception e)
+                            {
+                                Log.e("Fail 3", e.toString());
+                            }
+
+                        } catch (Exception ex) {
+                            ex.printStackTrace();
+                        }
+                    }
+                }).start();
+
+
+
+
+/*
                 BackendlessUser user = new BackendlessUser();
                 user.setPassword( pass );
                 user.setEmail(email);
@@ -192,7 +300,7 @@ public class fragmentRegister extends Fragment {
                         });
 
                     }
-                });
+                });*/
             }
         });
 

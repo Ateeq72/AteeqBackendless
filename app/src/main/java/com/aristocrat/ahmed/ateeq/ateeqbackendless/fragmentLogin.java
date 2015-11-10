@@ -8,6 +8,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,10 +17,20 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.backendless.Backendless;
-import com.backendless.BackendlessUser;
-import com.backendless.async.callback.AsyncCallback;
-import com.backendless.exceptions.BackendlessFault;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.message.BasicNameValuePair;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
 
 
 /**
@@ -147,31 +158,77 @@ public class fragmentLogin extends Fragment {
                     return;
                 }
 
-                Backendless.UserService.login(email, pass, new AsyncCallback<BackendlessUser>() {
-                    @Override
-                    public void handleResponse(BackendlessUser response) {
-                        Fragment main = new fragmentMain();
-                        FragmentTransaction ft = getFragmentManager().beginTransaction();
-                        ft.replace(R.id.mainFrame, main);
-                        ft.commit();
+                try {
 
-                    }
+                    new Thread(new Runnable(){
+                        @Override
+                        public void run() {
+                            try {
+                                //Your implementation goes here
+                                InputStream is = null;
+                                String line = null;
+                                String result = null;
 
-                    @Override
-                    public void handleFault(BackendlessFault fault) {
-                        AlertDialog.Builder alert = new AlertDialog.Builder(getActivity());
-                        alert.setTitle("Login Failed");
-                        alert.setMessage("Error : " + fault);
-                        alert.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                dialog.dismiss();
+                                ArrayList<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
+
+                                nameValuePairs.add(new BasicNameValuePair("password", pass));
+
+                                try {
+                                    HttpClient httpclient = new DefaultHttpClient();
+                                    HttpPost httppost = new HttpPost("http://192.168.1.10/getuser.php");
+                                    httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
+                                    HttpResponse response = httpclient.execute(httppost);
+                                    HttpEntity entity = response.getEntity();
+                                    is = entity.getContent();
+                                    Log.e("pass 1", "connection success ");
+                                } catch (Exception e) {
+                                    Log.e("Fail 1", e.toString());
+                                    //  Toast.makeText(this, "Invalid IP Address",
+                                    //       Toast.LENGTH_LONG).show();
+                                }
+
+                                try {
+                                    BufferedReader reader = new BufferedReader
+                                            (new InputStreamReader(is, "iso-8859-1"), 8);
+                                    StringBuilder sb = new StringBuilder();
+                                    while ((line = reader.readLine()) != null) {
+                                        sb.append(line + "\n");
+                                    }
+                                    is.close();
+                                    result = sb.toString();
+                                    Log.e("pass 2", "connection success ");
+                                } catch (Exception e) {
+                                    Log.e("Fail 2", e.toString());
+                                }
+
+                                try {
+                                    JSONObject json_data = new JSONObject(result);
+                                    String name = (json_data.getString("name"));
+                                    String femail = (json_data.getString("email"));
+                                    MainActivity.cuname = name;
+                                    MainActivity.cuemailid = femail;
+                                    if (name.equals("") || femail.equals("")) {
+                                        Toast.makeText(getActivity(),"User Not fount please Register",Toast.LENGTH_LONG).show();
+                                        return;
+                                    }
+                                    MainActivity.loggedin = true;
+
+                                } catch (Exception e) {
+                                    Log.e("Fail 3", e.toString());
+                                }
+
+                            } catch (Exception ex) {
+                                ex.printStackTrace();
                             }
-                        });
-                        alert.show();
+                        }
+                    }).start();
 
-                    }
-                }, stays);
+
+
+                } catch (Exception ex) {
+                    Toast.makeText(getActivity(), "Error : " + ex, Toast.LENGTH_LONG).show();
+                }
+
 
             }
         });
@@ -187,6 +244,8 @@ public class fragmentLogin extends Fragment {
 
             }
         });
+
+
 
 
 
