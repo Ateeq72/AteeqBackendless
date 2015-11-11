@@ -36,6 +36,7 @@ import org.json.JSONObject;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 
@@ -56,11 +57,12 @@ public class fragmentOrder extends Fragment {
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
-    private JSONObject jsondata = new JSONObject();
-    private JSONArray jsonarray = new JSONArray();
-    private static String RESULT = "";
-    private static final String TAG_SUCCESS = "flag";
-    private static final String TAG_MESSAGE = "message";
+
+
+    public JSONObject jsondata = new JSONObject();
+    public static final String TAG_SUCCESS = "code";
+    public static  final String TAG_MESSAGE = "message";
+
 
     private OnFragmentInteractionListener mListener;
 
@@ -162,10 +164,9 @@ public class fragmentOrder extends Fragment {
                 String pno = pnofield.getText().toString();
                 MainActivity.pno = pno;
 
-                Toast.makeText(getActivity(), MainActivity.cuname+"  " + MainActivity.cuemailid +" "+ MainActivity.dish +" " + MainActivity.quantity +" "+ pno, Toast.LENGTH_LONG).show();
-                new storeorderdb().execute();
-                if(MainActivity.cuname.equals("") || MainActivity.cuemailid.equals(""))
-                {
+                Toast.makeText(getActivity(), MainActivity.cuname + "  " + MainActivity.cuemailid + " " + MainActivity.dish + " " + MainActivity.quantity + " " + pno, Toast.LENGTH_LONG).show();
+
+                if (MainActivity.cuname.equals("") || MainActivity.cuemailid.equals("")) {
                     AlertDialog.Builder alert = new AlertDialog.Builder(getActivity());
                     alert.setTitle("Order Error");
                     alert.setMessage("Please Login to order!");
@@ -177,6 +178,7 @@ public class fragmentOrder extends Fragment {
                     });
                     return;
                 }
+                new storeorderdb().execute();
 
             }
         });
@@ -184,6 +186,8 @@ public class fragmentOrder extends Fragment {
 
     private class storeorderdb extends AsyncTask<String, String, String>
     {
+        String RESULT;
+        String res;
 
         @Override
         protected void onPreExecute() {
@@ -201,21 +205,26 @@ public class fragmentOrder extends Fragment {
 
             UserFunctions userfunc = new UserFunctions();
 
+
             jsondata =  userfunc.orderstuff(MainActivity.cuname,MainActivity.dish,MainActivity.quantity,MainActivity.pno);
             try {
-                if (!jsondata.getString(TAG_MESSAGE).equals("")) {
-                    String res = jsondata.getString(TAG_SUCCESS);
-                    if(Integer.parseInt(res) == 1)
+
+
+                    res = jsondata.getString(TAG_SUCCESS);
+                    if(res == "1")
                     {
                      //order succes!
-                        return RESULT = "succes";
+                        RESULT = jsondata.getString(TAG_MESSAGE);
+                        Log.d("Order Created!", jsondata.toString());
+                        return RESULT;
                     }
                     else{
-                        String msg = jsondata.getString(TAG_MESSAGE);
-                        return RESULT = msg;
+                        RESULT = jsondata.getString(TAG_MESSAGE);
+                        Log.d("Order Failed", jsondata.toString());
+                        return RESULT;
                     }
 
-                }
+
             }
             catch (Exception ex)
             {
@@ -226,13 +235,10 @@ public class fragmentOrder extends Fragment {
         }
 
         protected void onPostExecute(String file_url) {
+
             pDialog.dismiss();
-            if (RESULT == "succes")
-            {
-                Fragment main = new fragmentMain();
-                FragmentTransaction ft = getFragmentManager().beginTransaction();
-                ft.replace(R.id.mainFrame,main);
-                ft.commit();
+
+            if(res == "1") {
                 AlertDialog.Builder alert = new AlertDialog.Builder(getActivity());
                 alert.setTitle("Order Status");
                 alert.setMessage(RESULT);
@@ -240,10 +246,13 @@ public class fragmentOrder extends Fragment {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         dialog.dismiss();
+                        Fragment main = new fragmentMain();
+                        FragmentTransaction ft = getFragmentManager().beginTransaction();
+                        ft.replace(R.id.mainFrame, main);
+                        ft.commit();
                     }
                 });
                 alert.show();
-
             }
             else{
                 AlertDialog.Builder alert = new AlertDialog.Builder(getActivity());
@@ -253,10 +262,14 @@ public class fragmentOrder extends Fragment {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         dialog.dismiss();
-                    }
+                                          }
                 });
                 alert.show();
+
             }
+
+
+
 
         }
     }

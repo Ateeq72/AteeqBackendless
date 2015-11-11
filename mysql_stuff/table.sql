@@ -12,7 +12,7 @@ drop table rest.orders;
 
 
 create table rest.orders(`sno` mediumint auto_increment,
-`user` varchar(255) not null,
+`user` varchar(255) not null,	
 `dish` varchar(255) not null,
 `quantity` varchar(255) not null,
 `pno` int(15) not null,
@@ -21,3 +21,5 @@ primary key(sno)
 
 select * from rest.user;
 select * from rest.orders;
+
+SELECT * FROM rest.user WHERE email = 'ahmedateeq64@gmail.com' and password='khader6@';
