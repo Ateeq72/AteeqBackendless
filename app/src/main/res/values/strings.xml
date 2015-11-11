@@ -12,6 +12,7 @@
         <item>Veg. Briyani</item>
         <item>Chicken Briyani</item>
         <item>Mutton Briyani</item>
+
     </string-array>
     <string-array name="noodles_list">
         <item>Veg. Noodles</item>

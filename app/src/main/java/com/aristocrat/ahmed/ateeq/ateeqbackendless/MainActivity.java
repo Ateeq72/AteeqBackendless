@@ -38,6 +38,9 @@ public class MainActivity extends AppCompatActivity
                         static String cuemailid = "guest@domain.com";
                         static boolean loggedin;
                         static String pno;
+                        static String ruser;
+                        static String rpass;
+                        static boolean stays;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

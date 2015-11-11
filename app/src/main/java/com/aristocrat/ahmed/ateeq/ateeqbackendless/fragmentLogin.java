@@ -3,9 +3,11 @@ package com.aristocrat.ahmed.ateeq.ateeqbackendless;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.FragmentTransaction;
+import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.net.Uri;
-import android.os.Build;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.app.Fragment;
 import android.util.Log;
@@ -17,20 +19,17 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
+import com.aristocrat.ahmed.ateeq.ateeqbackendless.library.DatabaseHandler;
+import com.aristocrat.ahmed.ateeq.ateeqbackendless.library.JSONParser;
+import com.aristocrat.ahmed.ateeq.ateeqbackendless.library.UserFunctions;
+
 import org.apache.http.NameValuePair;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
+import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.BufferedReader;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.List;
 
 
 /**
@@ -46,8 +45,25 @@ public class fragmentLogin extends Fragment {
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
+    private ProgressDialog pDialog;
+    private static JSONObject jsondata = new JSONObject();
 
-    // TODO: Rename and change types of parameters
+
+    private static String KEY_ERROR = "error";
+    private static String KEY_ERROR_MSG = "error_msg";
+
+    private static String KEY_NAME = "name";
+    private static String KEY_EMAIL = "email";
+    private static  String RESULT= "";
+
+    private static final String TAG_SUCCESS = "success";
+    private static final String TAG_MESSAGE = "message";
+
+    /* JSONParser jsonParser = new JSONParser();
+    private static final String LOGIN_URL = "http://192.168.1.8/login.php";
+
+
+*/    // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
 
@@ -120,6 +136,7 @@ public class fragmentLogin extends Fragment {
 
 
 
+
     /**
      * This interface must be implemented by activities that contain this
      * fragment to allow an interaction in this fragment to be communicated
@@ -146,7 +163,7 @@ public class fragmentLogin extends Fragment {
                 EditText getmailfield = (EditText) getView().findViewById(R.id.getemail);
                 EditText getpasswordfield = (EditText) getView().findViewById(R.id.getpassword);
                 CheckBox staycheck = (CheckBox) getView().findViewById(R.id.stay);
-                final boolean stays = staycheck.isChecked();
+                MainActivity.stays = staycheck.isChecked();
                 final String email = getmailfield.getText().toString();
                 final String pass = getpasswordfield.getText().toString();
                 if (email == null || email.equals("")) {
@@ -160,68 +177,11 @@ public class fragmentLogin extends Fragment {
 
                 try {
 
-                    new Thread(new Runnable(){
-                        @Override
-                        public void run() {
-                            try {
-                                //Your implementation goes here
-                                InputStream is = null;
-                                String line = null;
-                                String result = null;
+                    MainActivity.ruser = email;
+                    MainActivity.rpass = pass;
+                    new AttemptLogin().execute();
 
-                                ArrayList<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
 
-                                nameValuePairs.add(new BasicNameValuePair("password", pass));
-
-                                try {
-                                    HttpClient httpclient = new DefaultHttpClient();
-                                    HttpPost httppost = new HttpPost("http://192.168.1.10/getuser.php");
-                                    httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
-                                    HttpResponse response = httpclient.execute(httppost);
-                                    HttpEntity entity = response.getEntity();
-                                    is = entity.getContent();
-                                    Log.e("pass 1", "connection success ");
-                                } catch (Exception e) {
-                                    Log.e("Fail 1", e.toString());
-                                    //  Toast.makeText(this, "Invalid IP Address",
-                                    //       Toast.LENGTH_LONG).show();
-                                }
-
-                                try {
-                                    BufferedReader reader = new BufferedReader
-                                            (new InputStreamReader(is, "iso-8859-1"), 8);
-                                    StringBuilder sb = new StringBuilder();
-                                    while ((line = reader.readLine()) != null) {
-                                        sb.append(line + "\n");
-                                    }
-                                    is.close();
-                                    result = sb.toString();
-                                    Log.e("pass 2", "connection success ");
-                                } catch (Exception e) {
-                                    Log.e("Fail 2", e.toString());
-                                }
-
-                                try {
-                                    JSONObject json_data = new JSONObject(result);
-                                    String name = (json_data.getString("name"));
-                                    String femail = (json_data.getString("email"));
-                                    MainActivity.cuname = name;
-                                    MainActivity.cuemailid = femail;
-                                    if (name.equals("") || femail.equals("")) {
-                                        Toast.makeText(getActivity(),"User Not fount please Register",Toast.LENGTH_LONG).show();
-                                        return;
-                                    }
-                                    MainActivity.loggedin = true;
-
-                                } catch (Exception e) {
-                                    Log.e("Fail 3", e.toString());
-                                }
-
-                            } catch (Exception ex) {
-                                ex.printStackTrace();
-                            }
-                        }
-                    }).start();
 
 
 
@@ -251,4 +211,102 @@ public class fragmentLogin extends Fragment {
 
     }
 
-}
+    class AttemptLogin extends AsyncTask<String, String, String> {
+        /**
+         * Before starting background thread Show Progress Dialog *
+         */
+        boolean failure = false;
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            pDialog = new ProgressDialog(getActivity());
+            pDialog.setMessage("Attempting for login...");
+            pDialog.setIndeterminate(false);
+            pDialog.setCancelable(true);
+            pDialog.show();
+        }
+
+        @Override
+        protected String doInBackground(String... args) {
+        // TODO Auto-generated method stub
+        // here Check for success tag
+
+            String username = MainActivity.ruser;
+            String password = MainActivity.rpass;
+            UserFunctions userFunctions = new UserFunctions();
+            jsondata = userFunctions.loginUser(username,password);
+
+            try {
+                if (!jsondata.getString(TAG_MESSAGE).equals(""))
+                {
+                    String res = jsondata.getString(TAG_SUCCESS);
+                    if(Integer.parseInt(res) == 1){
+                        //logged in! :)
+
+                        DatabaseHandler db = new DatabaseHandler(getActivity());
+                        JSONObject json_user = jsondata.getJSONObject("user");
+
+                        MainActivity.cuname = json_user.getString("name");
+                        MainActivity.cuemailid = json_user.getString("email");
+                        // Clear all previous data in database
+                        userFunctions.logoutUser(getActivity());
+                        db.addUser(json_user.getString("name"), json_user.getString("email"));
+                        if(MainActivity.stays)
+                        {
+                            MainActivity.loggedin = true;
+                        }
+
+
+                        return RESULT = "in";
+
+
+
+                    }
+                    else{
+                        String obtmsg = jsondata.getString(TAG_MESSAGE);
+                        return RESULT = obtmsg;
+                    }
+
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+                return RESULT;
+        }
+
+        /**
+         * Once the background process is done we need to Dismiss the progress dialog asap *
+         **/
+        protected void onPostExecute(String message) {
+            pDialog.dismiss();
+            if (RESULT != null) {
+                Toast.makeText(getActivity(), RESULT, Toast.LENGTH_LONG).show();
+                if (RESULT == "in")
+                {
+
+                    Fragment main = new fragmentMain();
+                    FragmentTransaction ft = getFragmentManager().beginTransaction();
+                    ft.replace(R.id.mainFrame,main);
+                    ft.commit();
+                }
+                else
+                {
+                    AlertDialog.Builder alert = new AlertDialog.Builder(getActivity());
+                    alert.setTitle("Loggin Failed!");
+                    alert.setMessage(RESULT);
+                    alert.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                        }
+                    });
+                    alert.show();
+                }
+            }
+        }
+
+
+    }
+    }

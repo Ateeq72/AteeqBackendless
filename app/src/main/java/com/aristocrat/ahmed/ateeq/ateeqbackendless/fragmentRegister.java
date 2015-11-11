@@ -5,6 +5,7 @@ import android.app.AlertDialog;
 import android.app.FragmentTransaction;
 import android.content.DialogInterface;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.app.Fragment;
 import android.util.Log;
@@ -167,143 +168,23 @@ public class fragmentRegister extends Fragment {
                     return;
                 }
 
-                new Thread(new Runnable(){
-                    @Override
-                    public void run() {
-                        try {
-                            //Your implementation goes here
-                            InputStream is = null;
-                            String line=null;
-                            String result=null;
-                            int code;
-
-
-                            ArrayList<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
-
-                            nameValuePairs.add(new BasicNameValuePair("name",name));
-                            nameValuePairs.add(new BasicNameValuePair("email",email));
-                            nameValuePairs.add(new BasicNameValuePair("password",pass));
-
-                            try
-                            {
-                                HttpClient httpclient = new DefaultHttpClient();
-                                HttpPost httppost = new HttpPost("http://192.168.1.10/insertusers.php");
-                                httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
-                                HttpResponse response = httpclient.execute(httppost);
-                                HttpEntity entity = response.getEntity();
-                                is = entity.getContent();
-                                Log.e("pass 1", "connection success ");
-                            }
-                            catch(Exception e)
-                            {
-                                Log.e("Fail 1", e.toString());
-//            Toast.makeText(this, "Invalid IP Address",
-                                //Toast.LENGTH_LONG).show();
-                            }
-
-                            try
-                            {
-                                BufferedReader reader = new BufferedReader
-                                        (new InputStreamReader(is,"iso-8859-1"),8);
-                                StringBuilder sb = new StringBuilder();
-                                while ((line = reader.readLine()) != null)
-                                {
-                                    sb.append(line + "\n");
-                                }
-                                is.close();
-                                result = sb.toString();
-                                Log.e("pass 2", "connection success ");
-                            }
-                            catch(Exception e)
-                            {
-                                Log.e("Fail 2", e.toString());
-                            }
-
-                            try
-                            {
-                                JSONObject json_data = new JSONObject(result);
-                                code=(json_data.getInt("code"));
-
-                                if(code==1)
-                                {
-                                    Toast.makeText(getActivity(), "Registered Successfully",
-                                            Toast.LENGTH_SHORT).show();
-                                    AlertDialog.Builder alert = new AlertDialog.Builder(getActivity());
-                                    alert.setTitle("Registration");
-                                    alert.setMessage("Registration Succesfull");
-                                    alert.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                                        @Override
-                                        public void onClick(DialogInterface dialog, int which) {
-                                            Fragment main = new fragmentMain();
-                                            FragmentTransaction ft = getFragmentManager().beginTransaction();
-                                            ft.replace(R.id.mainFrame, main);
-                                            ft.commit();
-                                            dialog.dismiss();
-                                        }
-                                    });
-                                }
-                                else
-                                {
-                                    Toast.makeText(getActivity(), "Sorry, Try Again",
-                                            Toast.LENGTH_LONG).show();
-                                }
-                            }
-                            catch(Exception e)
-                            {
-                                Log.e("Fail 3", e.toString());
-                            }
-
-                        } catch (Exception ex) {
-                            ex.printStackTrace();
-                        }
-                    }
-                }).start();
 
 
 
 
-/*
-                BackendlessUser user = new BackendlessUser();
-                user.setPassword( pass );
-                user.setEmail(email);
-                user.setProperty("name", name);
-                Backendless.UserService.register(user, new AsyncCallback<BackendlessUser>() {
-                    @Override
-                    public void handleResponse(BackendlessUser response) {
-                        Toast.makeText(getActivity(),"Loading..",Toast.LENGTH_LONG).show();
-                        AlertDialog.Builder alert = new AlertDialog.Builder(getActivity());
-                        alert.setTitle("Registration");
-                        alert.setMessage("Registration Succesfull");
-                        alert.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                Fragment main = new fragmentMain();
-                                FragmentTransaction ft = getFragmentManager().beginTransaction();
-                                ft.replace(R.id.mainFrame, main);
-                                ft.commit();
-                                dialog.dismiss();
-                            }
-                        });
-
-                    }
-
-                    @Override
-                    public void handleFault(BackendlessFault fault) {
-                        AlertDialog.Builder alert = new AlertDialog.Builder(getActivity());
-                        alert.setTitle("Registration");
-                        alert.setMessage("Registration failed \nReason :" + fault);
-                        alert.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                dialog.dismiss();
-                            }
-                        });
-
-                    }
-                });*/
             }
         });
 
+    }
+
+    private class register extends AsyncTask<String ,String, String>
+    {
+
+
+        @Override
+        protected String doInBackground(String... params) {
+            return null;
+        }
     }
 
 }
