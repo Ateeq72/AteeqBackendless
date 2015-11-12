@@ -18,8 +18,18 @@
     <ListView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="@drawable/l2"
+
         android:id="@+id/noodleslist"
         android:layout_below="@+id/textView6"
-        android:layout_centerHorizontal="true" />
+        android:layout_centerHorizontal="true"
+        android:layout_above="@+id/imageView2" />
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/imageView2"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true"
+        android:src="@drawable/l2_high" />
 </RelativeLayout>

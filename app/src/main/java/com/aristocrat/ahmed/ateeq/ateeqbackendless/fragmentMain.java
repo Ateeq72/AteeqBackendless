@@ -1,12 +1,15 @@
 package com.aristocrat.ahmed.ateeq.ateeqbackendless;
 
 import android.app.Activity;
+import android.app.FragmentTransaction;
 import android.net.Uri;
 import android.os.Bundle;
 import android.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.HorizontalScrollView;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 
@@ -112,6 +115,78 @@ public class fragmentMain extends Fragment {
     {
         super.onActivityCreated(bs);
 
+
+        ImageView h1i1 = (ImageView) getView().findViewById(R.id.hsv1_i1);
+        h1i1.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Fragment briyani = new fragmentBriyani();
+                FragmentTransaction ft = getFragmentManager().beginTransaction();
+                ft.replace(R.id.mainFrame, briyani);
+                ft.commit();
+
+            }
+        });
+
+        ImageView h1i2 = (ImageView) getView().findViewById(R.id.hsv1_i2);
+        h1i2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Fragment briyani = new fragmentBriyani();
+                FragmentTransaction ft = getFragmentManager().beginTransaction();
+                ft.replace(R.id.mainFrame,briyani);
+                ft.commit();
+
+            }
+        });
+
+        ImageView h1i3 = (ImageView) getView().findViewById(R.id.hsv1_i3);
+        h1i3.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Fragment briyani = new fragmentBriyani();
+                FragmentTransaction ft = getFragmentManager().beginTransaction();
+                ft.replace(R.id.mainFrame,briyani);
+                ft.commit();
+
+            }
+        });
+
+        ImageView h2i1 = (ImageView) getView().findViewById(R.id.hsv2_i1);
+        h2i1.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Fragment noodles = new fragmentNoodles();
+                FragmentTransaction ft = getFragmentManager().beginTransaction();
+                ft.replace(R.id.mainFrame, noodles);
+                ft.commit();
+
+            }
+        });
+
+        ImageView h2i2 = (ImageView) getView().findViewById(R.id.hsv2_i2);
+        h2i2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Fragment noodles = new fragmentNoodles();
+                FragmentTransaction ft = getFragmentManager().beginTransaction();
+                ft.replace(R.id.mainFrame, noodles);
+                ft.commit();
+
+            }
+        });
+
+        ImageView h2i3 = (ImageView) getView().findViewById(R.id.hsv2_i3);
+        h2i3.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Fragment noodles = new fragmentNoodles();
+                FragmentTransaction ft = getFragmentManager().beginTransaction();
+                ft.replace(R.id.mainFrame, noodles);
+                ft.commit();
+
+            }
+        });
 
     }
 
