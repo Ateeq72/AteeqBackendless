@@ -163,7 +163,7 @@ public class MainActivity extends AppCompatActivity
             ft.replace(R.id.nav_view, nav);
             ft.commit();
 
-            Fragment main = new fragmentLogin();
+            Fragment main = new fragmentMain();
             FragmentTransaction ft1 = getFragmentManager().beginTransaction();
             ft1.replace(R.id.mainFrame, main);
             ft1.commit();

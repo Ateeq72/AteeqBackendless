@@ -11,6 +11,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.app.Fragment;
 import android.support.design.widget.NavigationView;
+import android.support.v4.widget.DrawerLayout;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -136,6 +137,9 @@ public class fragmentLogin extends Fragment {
         super.onDetach();
         mListener = null;
     }
+
+
+
 
 
 
@@ -290,6 +294,10 @@ public class fragmentLogin extends Fragment {
                         FragmentTransaction ft = getFragmentManager().beginTransaction();
                         ft.replace(R.id.mainFrame, main);
                         ft.commit();
+
+                        handledrawer(getActivity());
+
+
                         Toast.makeText(getActivity(),"Welcome!  " + name,Toast.LENGTH_SHORT).show();
                     }
                 });
@@ -313,5 +321,12 @@ public class fragmentLogin extends Fragment {
         }
 
 
+    }
+
+    public void handledrawer(Activity v)
+    {
+        NavigationView navigationView = (NavigationView) v.findViewById(R.id.nav_view);
+        navigationView.getMenu().setGroupVisible(R.id.logingroup, false);
+        navigationView.getMenu().setGroupVisible(R.id.logoutgroup, true);
     }
     }

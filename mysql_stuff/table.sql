@@ -18,7 +18,7 @@ create table rest.orders(`sno` mediumint auto_increment,
 `user` varchar(255) not null,	
 `dish` varchar(255) not null,
 `quantity` varchar(255) not null,
-`pno` int(255) not null,
+`pno` varchar(255) not null,
 primary key(sno)
 );
 
