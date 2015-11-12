@@ -1,0 +1,48 @@
+ <!doctype html>
+<!-- 
+Add these lines to /etc/apache2/mods-enabled/php5.conf for php stuff to work!
+
+<FilesMatch ".+\.html$">
+    SetHandler application/x-httpd-php
+</FilesMatch>
+-->
+    <html lang="en">
+    <head>
+      <meta charset="UTF-8">
+      <title>Acquired Order's</title>
+    </head>
+    <body align='center'>
+      <?php
+      $host='mysql8.000webhost.com';
+        $uname='a4387670_ateeq';
+        $pwd='khader6';
+        $db="a4387670_ateeq";
+
+      $connector = mysql_connect($host,$uname,$pwd) or die("Unable to connect");
+      //echo "Connections are made successfully!";
+      $selected = mysql_select_db($db, $connector) or die("Unable to connect");
+
+      //execute the SQL query and return records
+      $result = mysql_query("SELECT * FROM orders ");
+echo "<table align='center' border='2'><tr>
+	  <th>S. No.</th>
+          <th>Person</th>
+          <th>Dish</th>
+          <th>Quantity</th>
+          <th>Phone No.</th></tr>";
+
+          while( $row = mysql_fetch_assoc( $result ) )
+{
+            echo "<tr><td>".$row['sno']."</td><td>".$row['user']."</td><td>".$row['dish']."</td><td>".$row['quantity']."</td><td>".$row['pno']."</td></tr>";
+}
+
+echo "</table>";
+mysql_close($connector);
+?>
+<br>
+
+<form action='handleclicks.php' method='POST'>
+<button type='submit' >RESET Orders!</button>
+</form>
+    </body>
+    </html>
