@@ -20,6 +20,11 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import com.aristocrat.ahmed.ateeq.ateeqbackendless.library.DatabaseHandler;
+import com.aristocrat.ahmed.ateeq.ateeqbackendless.library.UserFunctions;
+
+import java.util.HashMap;
+
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,
@@ -34,13 +39,13 @@ public class MainActivity extends AppCompatActivity
                     {
                         static String dish;
                         static String quantity;
-                        static String cuname = "guest";
-                        static String cuemailid = "guest@domain.com";
-                        static boolean loggedin;
+                        static String cuname ;
+                        static String cuemailid ;
                         static String pno;
                         static String ruser;
                         static String rpass;
-                        static boolean stays;
+                        static String rname;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,18 +53,6 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
-
-        if (loggedin)
-        {
-
-            fragmentNav a = new fragmentNav();
-            a.setnavdata(cuemailid,cuname);
-            final NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
-            navigationView.getMenu().setGroupVisible(R.id.logingroup,false);
-            navigationView.getMenu().setGroupVisible(R.id.logoutgroup,true);
-
-        }
 
 
         Fragment navview = new fragmentNav();
@@ -73,11 +66,29 @@ public class MainActivity extends AppCompatActivity
         drawer.setDrawerListener(toggle);
         toggle.syncState();
 
-
+        UserFunctions userFunctions = new UserFunctions();
+        DatabaseHandler db = new DatabaseHandler(MainActivity.this);
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        if(userFunctions.isUserLoggedIn(getBaseContext()))
+        {
 
-        navigationView.getMenu().setGroupVisible(R.id.logingroup, true);
-        navigationView.getMenu().setGroupVisible(R.id.logoutgroup, false);
+            navigationView.getMenu().setGroupVisible(R.id.logingroup, false);
+            navigationView.getMenu().setGroupVisible(R.id.logoutgroup, true);
+            HashMap<Integer,String> userdata = new HashMap<Integer,String>();
+            userdata = db.getUserDetails();
+            MainActivity.cuname = userdata.get(1);
+            MainActivity.cuemailid = userdata.get(2);
+
+        }
+        else{
+
+            navigationView.getMenu().setGroupVisible(R.id.logingroup, true);
+            navigationView.getMenu().setGroupVisible(R.id.logoutgroup, false);
+            MainActivity.cuname = "Guest";
+            MainActivity.cuemailid = "guest@domain.com";
+
+        }
+
         navigationView.setNavigationItemSelectedListener(this);
 
         Fragment main =  new fragmentMain();
@@ -135,24 +146,28 @@ public class MainActivity extends AppCompatActivity
 
         }
         else if (id == R.id.logout) {
-            loggedin = false;
-            MainActivity.cuname="";
-            MainActivity.cuemailid="";
 
-            AlertDialog.Builder alert = new AlertDialog.Builder(MainActivity.this);
-            alert.setTitle("Logout");
-            alert.setMessage("Logout Success!");
-            alert.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                      dialog.dismiss();
-                }
-            });
+            UserFunctions userFunctions = new UserFunctions();
+            userFunctions.logoutUser(getBaseContext());
+
+            NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+            navigationView.getMenu().setGroupVisible(R.id.logingroup, true);
+            navigationView.getMenu().setGroupVisible(R.id.logoutgroup, false);
+            MainActivity.cuname = "Guest";
+            MainActivity.cuemailid = "guest@domain.com";
+
+            Toast.makeText(getBaseContext(),"Logged Out!",Toast.LENGTH_LONG).show();
+
+            Fragment nav = new fragmentNav();
+            FragmentTransaction ft = getFragmentManager().beginTransaction();
+            ft.replace(R.id.nav_view, nav);
+            ft.commit();
 
             Fragment main = new fragmentLogin();
-            FragmentTransaction ft = getFragmentManager().beginTransaction();
-            ft.replace(R.id.mainFrame,main);
-            ft.commit();
+            FragmentTransaction ft1 = getFragmentManager().beginTransaction();
+            ft1.replace(R.id.mainFrame, main);
+            ft1.commit();
+
 
         }
 

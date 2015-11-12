@@ -3,6 +3,7 @@ package com.aristocrat.ahmed.ateeq.ateeqbackendless;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.FragmentTransaction;
+import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -16,6 +17,8 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.aristocrat.ahmed.ateeq.ateeqbackendless.library.UserFunctions;
+
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
@@ -24,6 +27,7 @@ import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
@@ -50,6 +54,12 @@ public class fragmentRegister extends Fragment {
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
+
+    private ProgressDialog pDialog;
+    public JSONObject jsondata = new JSONObject();
+    public static final String TAG_SUCCESS = "success";
+    public static  final String TAG_MESSAGE = "message";
+
 
     private OnFragmentInteractionListener mListener;
 
@@ -167,9 +177,12 @@ public class fragmentRegister extends Fragment {
                     Toast.makeText(getActivity(),"Password dont match!",Toast.LENGTH_SHORT).show();
                     return;
                 }
+                MainActivity.rname= name;
+                MainActivity.ruser=email;
+                MainActivity.rpass=pass;
 
 
-
+                new register().execute();
 
 
             }
@@ -177,13 +190,85 @@ public class fragmentRegister extends Fragment {
 
     }
 
-    private class register extends AsyncTask<String ,String, String>
-    {
+    private class register extends AsyncTask<String ,String, String> {
+
+        String RESULT;
+        int res;
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            pDialog = new ProgressDialog(getActivity());
+            pDialog.setMessage("Registering... Please Wait.");
+            pDialog.setIndeterminate(false);
+            pDialog.setCancelable(false);
+            pDialog.show();
+        }
 
 
         @Override
         protected String doInBackground(String... params) {
-            return null;
+
+            UserFunctions userFunctions = new UserFunctions();
+            Log.d("request!", "starting");
+            jsondata = userFunctions.registerUser(MainActivity.rname,MainActivity.ruser,MainActivity.rpass);
+            if (jsondata != null)
+            {
+                try {
+                    res =  jsondata.getInt(TAG_SUCCESS);
+                    if (res == 1)
+                    {
+                        RESULT = jsondata.getString(TAG_MESSAGE);
+                        Log.d("connection", "success");
+                        return RESULT;
+                    }
+                    else {
+                        RESULT = jsondata.getString(TAG_MESSAGE);
+                        Log.d("registration", "failed");
+                        return RESULT;
+
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+
+
+            return RESULT;
+        }
+
+        protected void onPostExecute(String file_url) {
+
+            pDialog.dismiss();
+            if(res == 1) {
+                AlertDialog.Builder alert = new AlertDialog.Builder(getActivity());
+                alert.setTitle("Registration Status");
+                alert.setMessage(RESULT + "\nPlease Login!");
+                alert.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                        Fragment login = new fragmentLogin();
+                        FragmentTransaction ft = getFragmentManager().beginTransaction();
+                        ft.replace(R.id.mainFrame, login);
+                        ft.commit();
+                       }
+                });
+                alert.show();
+            }
+            else
+            {
+                AlertDialog.Builder alert = new AlertDialog.Builder(getActivity());
+                alert.setTitle("Registration Status");
+                alert.setMessage(RESULT);
+                alert.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                       }
+                });
+                alert.show();
+            }
         }
     }
 

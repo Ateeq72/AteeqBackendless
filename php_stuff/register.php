@@ -12,23 +12,36 @@
         $email=$_POST['email'];
 	$password=$_POST['password'];
 
-        $flag['code']=0;
-	$flag['message']="";
+	$query = " SELECT * FROM user WHERE email = '$email'"; 
+	$sql1=mysql_query($query); 
+	$row = mysql_fetch_array($sql1); 
 
+        if(!empty($row))
+	{
+		$flag['success']=0;
+                $flag['message']="Registration failed User Exist!";
+                die(json_encode($flag));
+			
+	}
+
+   
         if($r=mysql_query("insert into user(name,email,password) values('$name','$email','$password') ",$con))
         {
-                $flag['code']=1;
-                echo "Registered";
-		$flag['message']="Registered successfully";
+                $flag['success']=1;
+                $flag['message']="Registered successfully";
+		die(json_encode($flag));
 
 	}
+
+	
 	else
 	{
-		$flag['code']=0;
+		$flag['success']=0;
 		$flag['message']="Registration failed";
+		die(json_encode($flag));
 	}
 
-	print(json_encode($flag));
+	die(json_encode($flag));
 	mysql_close($con);
 	
 ?>

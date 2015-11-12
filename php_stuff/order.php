@@ -3,6 +3,7 @@
         $uname='root';
         $pwd='laka';
         $db="rest";
+	$flag = array();
 
 
         $con = mysql_connect($host,$uname,$pwd) or die("connection failed" . mysql_error());
@@ -19,19 +20,21 @@
 
         if($r=mysql_query("insert into orders(user,dish,quantity,pno) values('$user','$dish','$quantity','$pno') ",$con))
         {
-                $flag["code"]=1;
-                echo "ordered";
-		$flag["message"]="Ordered successfully";
+                $flag["success"] = 1;
+                $flag["message"] = "Ordered successfully";
+		die(json_encode($flag));
 
 	}
 	else
 	{
-		$flag["code"]=0;
-		$flag["message"]="Order failed";
+		$flag["success"] = 0;
+		$flag["message"] = "Order failed";
+		echo json_encode($flag);
 		die("insertion failed  : " . mysql_error());
 	}
 
-	print(json_encode($flag));
+	die(json_encode($flag));
+
 	mysql_close($con);
 	
 ?>

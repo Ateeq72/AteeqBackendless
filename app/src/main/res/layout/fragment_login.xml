@@ -32,8 +32,8 @@
         android:inputType="textEmailAddress"
         android:ems="10"
         android:id="@+id/getemail"
-        android:layout_alignTop="@+id/textView3"
-        android:layout_alignParentEnd="true" />
+        android:layout_alignBottom="@+id/textView3"
+        android:layout_alignStart="@+id/getpassword" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -54,25 +54,16 @@
         android:layout_alignBottom="@+id/textView4"
         android:layout_alignParentEnd="true" />
 
-    <CheckBox
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Stay Logged in?"
-        android:id="@+id/stay"
-        android:layout_centerVertical="true"
-        android:layout_toEndOf="@+id/textView3"
-        android:checked="false" />
-
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Login"
         android:id="@+id/loginbutton"
         android:layout_marginTop="47dp"
-        android:layout_below="@+id/stay"
         android:layout_centerHorizontal="true"
         android:onClick="loginbtnmethod"
-        android:nestedScrollingEnabled="false" />
+        android:nestedScrollingEnabled="false"
+        android:layout_centerVertical="true" />
 
     <TextView
         android:layout_width="wrap_content"

@@ -31,6 +31,7 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
@@ -53,14 +54,14 @@ public class fragmentOrder extends Fragment {
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
-    private ProgressDialog pDialog;
+
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
 
-
+    private ProgressDialog pDialog;
     public JSONObject jsondata = new JSONObject();
-    public static final String TAG_SUCCESS = "code";
+    public static final String TAG_SUCCESS = "success";
     public static  final String TAG_MESSAGE = "message";
 
 
@@ -166,7 +167,7 @@ public class fragmentOrder extends Fragment {
 
                 Toast.makeText(getActivity(), MainActivity.cuname + "  " + MainActivity.cuemailid + " " + MainActivity.dish + " " + MainActivity.quantity + " " + pno, Toast.LENGTH_LONG).show();
 
-                if (MainActivity.cuname.equals("") || MainActivity.cuemailid.equals("")) {
+               /* if (MainActivity.cuname.equals("") || MainActivity.cuemailid.equals("")) {
                     AlertDialog.Builder alert = new AlertDialog.Builder(getActivity());
                     alert.setTitle("Order Error");
                     alert.setMessage("Please Login to order!");
@@ -177,7 +178,7 @@ public class fragmentOrder extends Fragment {
                         }
                     });
                     return;
-                }
+                }*/
                 new storeorderdb().execute();
 
             }
@@ -187,7 +188,7 @@ public class fragmentOrder extends Fragment {
     private class storeorderdb extends AsyncTask<String, String, String>
     {
         String RESULT;
-        String res;
+        int res;
 
         @Override
         protected void onPreExecute() {
@@ -207,28 +208,26 @@ public class fragmentOrder extends Fragment {
 
 
             jsondata =  userfunc.orderstuff(MainActivity.cuname,MainActivity.dish,MainActivity.quantity,MainActivity.pno);
-            try {
+            if(jsondata != null) {
+                try {
 
 
-                    res = jsondata.getString(TAG_SUCCESS);
-                    if(res == "1")
-                    {
-                     //order succes!
+                    int res = jsondata.getInt(TAG_SUCCESS);
+                    if (res == 1) {
+                        //order succes!
                         RESULT = jsondata.getString(TAG_MESSAGE);
                         Log.d("Order Created!", jsondata.toString());
                         return RESULT;
-                    }
-                    else{
+                    } else {
                         RESULT = jsondata.getString(TAG_MESSAGE);
                         Log.d("Order Failed", jsondata.toString());
                         return RESULT;
                     }
 
 
-            }
-            catch (Exception ex)
-            {
-
+                } catch (JSONException ex) {
+                    ex.printStackTrace();
+                }
             }
 
             return RESULT;
@@ -236,9 +235,8 @@ public class fragmentOrder extends Fragment {
 
         protected void onPostExecute(String file_url) {
 
-            pDialog.dismiss();
-
-            if(res == "1") {
+            if (res ==1) {
+                pDialog.dismiss();
                 AlertDialog.Builder alert = new AlertDialog.Builder(getActivity());
                 alert.setTitle("Order Status");
                 alert.setMessage(RESULT);
@@ -255,6 +253,7 @@ public class fragmentOrder extends Fragment {
                 alert.show();
             }
             else{
+                pDialog.dismiss();
                 AlertDialog.Builder alert = new AlertDialog.Builder(getActivity());
                 alert.setTitle("Order Status");
                 alert.setMessage(RESULT);
@@ -262,14 +261,11 @@ public class fragmentOrder extends Fragment {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         dialog.dismiss();
-                                          }
+                    }
                 });
                 alert.show();
 
             }
-
-
-
 
         }
     }

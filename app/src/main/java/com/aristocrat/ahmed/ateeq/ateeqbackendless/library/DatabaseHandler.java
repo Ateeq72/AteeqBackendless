@@ -32,7 +32,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
     private static final String KEY_NAME = "name";
     private static final String KEY_EMAIL = "email";
-    private static final String KEY_PASSWORD = "password";
+
 
 
     public DatabaseHandler(Context context) {
@@ -44,9 +44,8 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase db) {
         String CREATE_LOGIN_TABLE = "CREATE TABLE " + TABLE_LOGIN + "("
 
-                + KEY_NAME + " TEXT,"
-                + KEY_EMAIL + " TEXT UNIQUE,"
-                + KEY_PASSWORD + "TEXT PASWORD " + " )";
+                + KEY_NAME + "  TEXT, "
+                + KEY_EMAIL + "  TEXT UNIQUE " + " )";
         db.execSQL(CREATE_LOGIN_TABLE);
     }
 
@@ -78,8 +77,9 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     /**
      * Getting user data from database
      * */
-    public HashMap<String, String> getUserDetails(){
-        HashMap<String,String> user = new HashMap<String,String>();
+    public HashMap<Integer, String> getUserDetails(){
+        HashMap<Integer,String> user = new HashMap<Integer,String>();
+
         String selectQuery = "SELECT  * FROM " + TABLE_LOGIN;
 
         SQLiteDatabase db = this.getReadableDatabase();
@@ -87,15 +87,33 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         // Move to first row
         cursor.moveToFirst();
         if(cursor.getCount() > 0){
-            user.put("name", cursor.getString(1));
-            user.put("email", cursor.getString(2));
-            user.put("password", cursor.getString(3));
+            user.put(1, cursor.getString(0));
+            user.put(2, cursor.getString(1));
 
         }
         cursor.close();
         db.close();
         // return user
         return user;
+    }
+
+    public String uname()
+    {
+        String username = null;
+        String selectQuery = "SELECT  * FROM " + TABLE_LOGIN;
+
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery(selectQuery, null);
+        cursor.moveToFirst();
+        if(cursor.getCount() > 0){
+            username = cursor.getString(1);
+                    }
+        cursor.close();
+        db.close();
+        // return user
+        return username;
+
+
     }
 
     /**

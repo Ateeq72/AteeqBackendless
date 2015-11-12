@@ -10,6 +10,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.app.Fragment;
+import android.support.design.widget.NavigationView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -29,6 +30,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 
@@ -58,6 +60,7 @@ public class fragmentLogin extends Fragment {
 
     private static final String TAG_SUCCESS = "success";
     private static final String TAG_MESSAGE = "message";
+
 
     /* JSONParser jsonParser = new JSONParser();
     private static final String LOGIN_URL = "http://192.168.1.8/login.php";
@@ -162,8 +165,7 @@ public class fragmentLogin extends Fragment {
             public void onClick(View v) {
                 EditText getmailfield = (EditText) getView().findViewById(R.id.getemail);
                 EditText getpasswordfield = (EditText) getView().findViewById(R.id.getpassword);
-                CheckBox staycheck = (CheckBox) getView().findViewById(R.id.stay);
-                MainActivity.stays = staycheck.isChecked();
+
                 final String email = getmailfield.getText().toString();
                 final String pass = getpasswordfield.getText().toString();
                 if (email == null || email.equals("")) {
@@ -180,10 +182,6 @@ public class fragmentLogin extends Fragment {
                     MainActivity.ruser = email;
                     MainActivity.rpass = pass;
                     new AttemptLogin().execute();
-
-
-
-
 
                 } catch (Exception ex) {
                     Toast.makeText(getActivity(), "Error : " + ex, Toast.LENGTH_LONG).show();
@@ -215,8 +213,8 @@ public class fragmentLogin extends Fragment {
         /**
          * Before starting background thread Show Progress Dialog *
          */
-        boolean failure = false;
-
+        int res;
+        String name;
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
@@ -237,35 +235,28 @@ public class fragmentLogin extends Fragment {
             UserFunctions userFunctions = new UserFunctions();
             jsondata = userFunctions.loginUser(username,password);
 
+
             try {
-                if (!jsondata.getString(TAG_MESSAGE).equals(""))
+                if (jsondata != null)
                 {
-                    String res = jsondata.getString(TAG_SUCCESS);
-                    if(Integer.parseInt(res) == 1){
+                   res = jsondata.getInt(TAG_SUCCESS);
+                    if(res == 1){
                         //logged in! :)
 
                         DatabaseHandler db = new DatabaseHandler(getActivity());
-                        JSONObject json_user = jsondata.getJSONObject("user");
-
-                        MainActivity.cuname = json_user.getString("name");
-                        MainActivity.cuemailid = json_user.getString("email");
-                        // Clear all previous data in database
                         userFunctions.logoutUser(getActivity());
-                        db.addUser(json_user.getString("name"), json_user.getString("email"));
-                        if(MainActivity.stays)
-                        {
-                            MainActivity.loggedin = true;
-                        }
+                        MainActivity.cuname = jsondata.getString("cname");
+                        MainActivity.cuemailid = jsondata.getString("cemail");
+                        db.addUser(MainActivity.cuname,MainActivity.cuemailid);
+                        name = jsondata.getString("cname");
 
-
-                        return RESULT = "in";
+                        return RESULT = jsondata.getString(TAG_MESSAGE);
 
 
 
                     }
                     else{
-                        String obtmsg = jsondata.getString(TAG_MESSAGE);
-                        return RESULT = obtmsg;
+                             return RESULT = jsondata.getString(TAG_MESSAGE) ;
                     }
 
                 }
@@ -281,20 +272,34 @@ public class fragmentLogin extends Fragment {
          **/
         protected void onPostExecute(String message) {
             pDialog.dismiss();
-            if (RESULT != null) {
-                Toast.makeText(getActivity(), RESULT, Toast.LENGTH_LONG).show();
-                if (RESULT == "in")
-                {
+            if (res == 1) {
+                AlertDialog.Builder alert = new AlertDialog.Builder(getActivity());
+                alert.setTitle("Loggin Status");
+                alert.setMessage(RESULT);
+                alert.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
 
-                    Fragment main = new fragmentMain();
-                    FragmentTransaction ft = getFragmentManager().beginTransaction();
-                    ft.replace(R.id.mainFrame,main);
-                    ft.commit();
+                        Fragment nav = new fragmentNav();
+                        FragmentTransaction ftn = getFragmentManager().beginTransaction();
+                        ftn.replace(R.id.nav_view, nav);
+                        ftn.commit();
+
+                        Fragment main = new fragmentMain();
+                        FragmentTransaction ft = getFragmentManager().beginTransaction();
+                        ft.replace(R.id.mainFrame, main);
+                        ft.commit();
+                        Toast.makeText(getActivity(),"Welcome!  " + name,Toast.LENGTH_SHORT).show();
+                    }
+                });
+                alert.show();
+
                 }
                 else
                 {
                     AlertDialog.Builder alert = new AlertDialog.Builder(getActivity());
-                    alert.setTitle("Loggin Failed!");
+                    alert.setTitle("Loggin Status");
                     alert.setMessage(RESULT);
                     alert.setPositiveButton("OK", new DialogInterface.OnClickListener() {
                         @Override
@@ -303,8 +308,8 @@ public class fragmentLogin extends Fragment {
                         }
                     });
                     alert.show();
+
                 }
-            }
         }
 
 

@@ -9,6 +9,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.aristocrat.ahmed.ateeq.ateeqbackendless.library.DatabaseHandler;
+import com.aristocrat.ahmed.ateeq.ateeqbackendless.library.UserFunctions;
+
+import java.util.HashMap;
+
 
 /**
  * A simple {@link Fragment} subclass.
@@ -107,30 +112,29 @@ public class fragmentNav extends Fragment {
         public void onFragmentInteraction(Uri uri);
     }
 
-    String name;
-    String email;
 
-    public void setnavdata(String email,String name)
-    {
-        String dname = "Guest";
-        String demail = "guest@domain.com";
-        if (!email.equals("") || !name.equals("")) {
-            this.name = name;
-            this.email = email;
-        }
-        else{
-            this.name = dname;
-            this.email =demail;
-        }
-    }
     public void onActivityCreated(Bundle bs)
     {
         super.onActivityCreated(bs);
 
         TextView nameview = (TextView) getView().findViewById(R.id.nav_name);
         TextView emailview = (TextView) getView().findViewById(R.id.nav_id);
-        nameview.setText(name);
-        emailview.setText(email);
-    }
+        UserFunctions userFunctions = new UserFunctions();
+       DatabaseHandler db = new DatabaseHandler(getActivity());
+        if(userFunctions.isUserLoggedIn(getActivity())) {
+            HashMap<Integer,String> userdata = new HashMap<Integer,String>();
+            userdata = db.getUserDetails();
+            String name = userdata.get(1);
+            String email = userdata.get(2);
+            nameview.setText("  " +name);
+            emailview.setText("  "+email);
+        }
+        else
+        {
+            nameview.setText("  Guest");
+            emailview.setText("  guest@domain.com");
+        }
+        }
+
 
 }
